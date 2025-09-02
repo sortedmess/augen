@@ -3,10 +3,10 @@
 ## 🎯 **Demo API Service**
 
 The shared API at `https://augen-api.ignacioeloyola.workers.dev` is provided free for:
-- **Testing and demos** of the Augen vision assistant
-- **Community contributions** and development
+- **Official app** at https://augen.ignacio.tech
+- **Restricted access** for security (CORS-limited to official domain)
+- **Community testing** via the official deployment
 - **Accessibility research** and education
-- **Non-commercial usage**
 
 ## 📊 **Usage Limits**
 

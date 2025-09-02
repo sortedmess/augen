@@ -47,8 +47,8 @@ git clone https://github.com/yourusername/augen.git
 cd augen
 
 # The app is ready to use!
-# Frontend files can be deployed to any static hosting
-# API is already running at: https://augen-api.ignacioeloyola.workers.dev
+# Frontend deployed at: https://augen.ignacio.tech
+# API restricted to official domain for security
 
 # Optional: Deploy your own API worker
 npm install

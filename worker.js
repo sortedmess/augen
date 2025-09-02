@@ -4,7 +4,7 @@ export default {
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
           'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Max-Age': '86400',
@@ -28,7 +28,10 @@ export default {
       // Health check
       if (url.pathname === '/api/health') {
         return new Response(JSON.stringify({ status: 'ok', timestamp: Date.now() }), {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          },
         });
       }
 
@@ -39,7 +42,7 @@ export default {
         status: 500,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
         },
       });
     }
@@ -51,7 +54,10 @@ export default {
     if (!image) {
       return new Response(JSON.stringify({ error: 'Image data required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+        },
       });
     }
 
@@ -59,13 +65,14 @@ export default {
       ? "Describe this image in complete detail. If it contains text (like a menu, sign, or document), read all the text clearly and completely. If it's a scene, describe everything you see in detail. Be thorough and comprehensive as this will be read aloud to a visually impaired person."
       : "Provide a concise summary of this image. If it contains text (like a menu, sign, or document), give me the key information and main points only. If it's a scene, describe the most important elements. Keep it brief but informative for a visually impaired person.";
 
-    const response = await fetch('https://api.deepinfra.com/v1/inference/google/gemma-3-27b-it', {
+    const response = await fetch('https://api.deepinfra.com/v1/openai/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${env.DEEPINFRA_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        model: 'google/gemma-3-27b-it',
         messages: [
           {
             role: 'user',
@@ -99,7 +106,7 @@ export default {
         status: response.status,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
         },
       });
     }
@@ -121,7 +128,10 @@ export default {
     if (!text) {
       return new Response(JSON.stringify({ error: 'Text required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+        },
       });
     }
 
@@ -149,7 +159,7 @@ export default {
         status: response.status,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
         },
       });
     }
@@ -160,7 +170,7 @@ export default {
     return new Response(audioData, {
       headers: {
         'Content-Type': 'audio/mpeg',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
         'Cache-Control': 'public, max-age=3600',
       },
     });
