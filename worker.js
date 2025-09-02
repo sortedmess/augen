@@ -142,18 +142,19 @@ export default {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        input: text,
-        voice: voice,
-        speed: 0.9,
-        format: 'mp3'
+        text: text,
+        output_format: "mp3",
+        preset_voice: ["af_bella"],
+        speed: 0.9
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Deepinfra TTS API error:', errorText);
+      console.error('Deepinfra TTS API error:', response.status, errorText);
       return new Response(JSON.stringify({ 
         error: 'Text-to-speech failed',
+        status: response.status,
         details: errorText 
       }), {
         status: response.status,
@@ -164,10 +165,101 @@ export default {
       });
     }
 
-    // Return the audio data
-    const audioData = await response.arrayBuffer();
+    let data;
+    try {
+      // Parse the JSON response and extract audio data
+      data = await response.json();
+      console.log('TTS API response structure:', Object.keys(data));
+    } catch (parseError) {
+      console.error('Failed to parse TTS response as JSON:', parseError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid response format from TTS service',
+        details: parseError.message
+      }), {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+        },
+      });
+    }
     
-    return new Response(audioData, {
+    if (!data.audio) {
+      console.error('No audio field in response:', data);
+      return new Response(JSON.stringify({ 
+        error: 'No audio data received from TTS service',
+        responseData: data
+      }), {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+        },
+      });
+    }
+    
+    // Check if audio is a URL instead of base64 data
+    if (typeof data.audio === 'string' && data.audio.startsWith('http')) {
+      // Audio is a URL, fetch it and return
+      const audioResponse = await fetch(data.audio);
+      if (!audioResponse.ok) {
+        return new Response(JSON.stringify({ 
+          error: 'Failed to fetch audio from URL',
+          audioUrl: data.audio
+        }), {
+          status: 500,
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          },
+        });
+      }
+      
+      const audioData = await audioResponse.arrayBuffer();
+      return new Response(audioData, {
+        headers: {
+          'Content-Type': 'audio/mpeg',
+          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          'Cache-Control': 'public, max-age=3600',
+        },
+      });
+    }
+    
+    // Handle data URL format (data:audio/mp3;base64,...)
+    if (data.audio.startsWith('data:')) {
+      const base64Start = data.audio.indexOf(',') + 1;
+      const base64Data = data.audio.substring(base64Start);
+      
+      try {
+        const binaryString = atob(base64Data);
+        const audioBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          audioBuffer[i] = binaryString.charCodeAt(i);
+        }
+        
+        return new Response(audioBuffer, {
+          headers: {
+            'Content-Type': 'audio/mpeg',
+            'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+            'Cache-Control': 'public, max-age=3600',
+          },
+        });
+      } catch (conversionError) {
+        console.error('Failed to convert data URL base64:', conversionError);
+        return new Response(JSON.stringify({ 
+          error: 'Failed to process audio data URL',
+          details: conversionError.message
+        }), {
+          status: 500,
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          },
+        });
+      }
+    }
+    
+    return new Response(audioBuffer, {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
