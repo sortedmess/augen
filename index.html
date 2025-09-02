@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Augen - AI Vision Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="#main-button" class="skip-link">Skip to main button</a>
+    
+    <main class="container" role="main">
+        <h1 id="main-heading">Augen</h1>
+        
+        <div class="settings-toggle">
+            <button id="settings-btn" class="settings-button" aria-label="Toggle settings">⚙️</button>
+        </div>
+        
+        <div id="settings-panel" class="settings-panel" style="display: none;">
+            <h2>Settings</h2>
+            <label class="setting-item">
+                <input type="checkbox" id="morse-toggle">
+                <span>Morse Code Output</span>
+            </label>
+            <label class="setting-item">
+                <input type="checkbox" id="haptic-toggle" checked>
+                <span>Haptic Feedback</span>
+            </label>
+        </div>
+        
+        <button 
+            id="camera-btn" 
+            class="camera-button" 
+            type="button"
+            aria-label="Take picture - single tap for summary, double tap for full description"
+            aria-describedby="instructions"
+            tabindex="0">
+            📷 DESCRIBE
+        </button>
+        
+        <div id="instructions" class="sr-only">
+            Press this button to take a picture. Single tap for summary, double tap for full description. AI will describe what it sees out loud.
+        </div>
+        
+        <div 
+            id="status" 
+            class="status-message" 
+            aria-live="assertive" 
+            aria-atomic="true"
+            role="status"
+            style="display: none;">
+        </div>
+        
+        <input 
+            type="file" 
+            id="file-input" 
+            accept="image/*" 
+            capture="environment" 
+            aria-hidden="true"
+            style="display: none;">
+    </main>
+    
+    <footer role="contentinfo">
+        <nav aria-label="Footer navigation">
+            <p><a href="about.html" tabindex="0">About</a> • <a href="help.html" tabindex="0">Help</a> • <a href="contact.html" tabindex="0">Contact</a></p>
+        </nav>
+        <p>AI-powered vision assistant for accessibility</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Skip link for screen readers */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000000;
+    color: #ffff00;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background-color: #ffff00;
+    color: #000000;
+    font-size: 22px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container */
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Title - Even bigger for maximum visibility */
+h1 {
+    font-size: 80px;
+    font-weight: 900;
+    margin-bottom: 40px;
+    color: #000000;
+    text-shadow: 3px 3px 0px #ffffff;
+    letter-spacing: 6px;
+}
+
+
+/* Settings toggle button */
+.settings-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.settings-button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    background-color: #000000;
+    color: #ffff00;
+    border: 4px solid #000000;
+    border-radius: 50%;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.settings-button:hover {
+    background-color: #333333;
+}
+
+.settings-button:focus {
+    outline: 4px solid #ff0000;
+    outline-offset: 4px;
+}
+
+/* Settings panel */
+.settings-panel {
+    background-color: #000000;
+    color: #ffff00;
+    border: 6px solid #000000;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
+
+.settings-panel h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+/* Main camera button - Enhanced for double-tap */
+.camera-button {
+    width: 100%;
+    max-width: 500px;
+    height: 180px;
+    font-size: 44px;
+    font-weight: 900;
+    background-color: #000000;
+    color: #ffff00;
+    border: 10px solid #000000;
+    border-radius: 24px;
+    cursor: pointer;
+    margin-bottom: 40px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    text-shadow: 3px 3px 0px #ffffff;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    
+    /* Motor accessibility improvements */
+    min-height: 44px; /* WCAG minimum touch target */
+    touch-action: manipulation; /* Prevent zoom on double-tap */
+    -webkit-tap-highlight-color: transparent; /* Remove iOS tap highlight */
+    user-select: none; /* Prevent text selection */
+}
+
+.camera-button:hover {
+    background-color: #333333;
+    transform: scale(1.02); /* Reduced from 1.05 for stability */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.camera-button:active {
+    transform: scale(0.98); /* Subtle feedback */
+    background-color: #000000;
+}
+
+.camera-button:focus,
+.camera-button:focus-visible {
+    outline: 8px solid #ff0000;
+    outline-offset: 8px;
+    /* Enhanced focus for keyboard users */
+}
+
+.camera-button:disabled,
+.camera-button.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: #666666;
+    color: #cccccc;
+    transform: none; /* Disable animations when disabled */
+}
+
+/* Status message */
+.status-message {
+    width: 100%;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 30px;
+    border: 6px solid #000000;
+    border-radius: 16px;
+    background-color: #ffffff;
+    color: #000000;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.status-message.error {
+    background-color: #ff0000;
+    border-color: #000000;
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.status-message.success {
+    background-color: #00ff00;
+    border-color: #000000;
+    color: #000000;
+    font-weight: 900;
+}
+
+.status-message.loading {
+    background-color: #0066ff;
+    border-color: #000000;
+    color: #ffffff;
+    font-weight: 900;
+}
+
+/* Footer */
+footer {
+    background-color: #000000;
+    border-top: 4px solid #000000;
+    padding: 25px;
+    text-align: center;
+    color: #ffff00;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+footer p {
+    margin-bottom: 12px;
+}
+
+footer a {
+    color: #ffff00;
+    text-decoration: underline;
+    font-weight: 900;
+    text-decoration-thickness: 3px;
+}
+
+footer a:hover {
+    color: #ffffff;
+    background-color: #ffff00;
+    padding: 4px 8px;
+    text-decoration: none;
+}
+
+footer a:focus {
+    outline: 4px solid #ff0000;
+    outline-offset: 4px;
+}
+
+/* Responsive design - Mobile first */
+@media (min-width: 768px) {
+    body {
+        font-size: 24px;
+    }
+    
+    h1 {
+        font-size: 120px;
+        margin-bottom: 50px;
+    }
+    
+    .camera-button {
+        height: 180px;
+        font-size: 44px;
+        max-width: 500px;
+    }
+    
+    .status-message {
+        font-size: 32px;
+        padding: 35px;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 700px;
+    }
+    
+    body {
+        font-size: 26px;
+    }
+    
+    h1 {
+        font-size: 140px;
+    }
+    
+    .camera-button {
+        height: 200px;
+        font-size: 50px;
+        max-width: 600px;
+    }
+    
+    .status-message {
+        font-size: 36px;
+        padding: 40px;
+    }
+}
+
+/* Page-specific styles for About, Help, Contact pages */
+.nav-home {
+    display: inline-block;
+    background-color: #000000;
+    color: #ffff00;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 15px 25px;
+    margin: 20px 0 30px 0;
+    border: 4px solid #000000;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.nav-home:hover {
+    background-color: #333333;
+    color: #ffff00;
+    transform: scale(1.02);
+}
+
+.nav-home:focus {
+    outline: 4px solid #ff0000;
+    outline-offset: 4px;
+    background-color: #000000;
+    color: #ffff00;
+}
+
+.page-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+}
+
+.page-content h1 {
+    text-align: center;
+    font-size: 48px;
+    margin-bottom: 40px;
+}
+
+.page-content h2 {
+    font-size: 32px;
+    font-weight: 900;
+    color: #000000;
+    margin: 30px 0 15px 0;
+    text-shadow: 1px 1px 0px #ffffff;
+}
+
+.page-content h3 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #000000;
+    margin: 20px 0 10px 0;
+}
+
+.page-content p {
+    font-size: 20px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.page-content ul,
+.page-content ol {
+    font-size: 20px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding-left: 30px;
+}
+
+.page-content li {
+    margin-bottom: 8px;
+}
+
+.page-content strong {
+    font-weight: 900;
+}
+
+.page-content a {
+    color: #000000;
+    font-weight: 900;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    background-color: transparent;
+}
+
+.page-content a:hover {
+    background-color: #000000;
+    color: #ffff00;
+    padding: 2px 6px;
+    text-decoration: none;
+}
+
+.page-content a:focus {
+    outline: 4px solid #ff0000;
+    outline-offset: 2px;
+    background-color: #000000;
+    color: #ffff00;
+    padding: 2px 6px;
+    text-decoration: none;
+}
+
+.page-content code {
+    background-color: #000000;
+    color: #ffff00;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.page-content kbd {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid #333333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.page-content dl {
+    margin-bottom: 25px;
+}
+
+.page-content dt {
+    font-weight: 900;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.page-content dd {
+    margin-left: 25px;
+    margin-bottom: 10px;
+}
+
+.action-buttons {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.button-link {
+    display: inline-block;
+    background-color: #000000;
+    color: #ffff00;
+    text-decoration: none;
+    font-size: 28px;
+    font-weight: 900;
+    padding: 20px 30px;
+    border: 6px solid #000000;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.button-link:hover {
+    background-color: #333333;
+    color: #ffff00;
+    transform: scale(1.02);
+}
+
+.button-link:focus {
+    outline: 6px solid #ff0000;
+    outline-offset: 6px;
+    background-color: #000000;
+    color: #ffff00;
+}
+
+/* Responsive adjustments for content pages */
+@media (min-width: 768px) {
+    .page-content h1 {
+        font-size: 60px;
+    }
+    
+    .page-content h2 {
+        font-size: 38px;
+    }
+    
+    .page-content h3 {
+        font-size: 28px;
+    }
+    
+    .page-content p,
+    .page-content ul,
+    .page-content ol {
+        font-size: 22px;
+    }
+    
+    .nav-home {
+        font-size: 22px;
+        padding: 18px 30px;
+    }
+    
+    .button-link {
+        font-size: 32px;
+        padding: 25px 40px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page-content h1 {
+        font-size: 72px;
+    }
+    
+    .page-content h2 {
+        font-size: 44px;
+    }
+    
+    .page-content p,
+    .page-content ul,
+    .page-content ol {
+        font-size: 24px;
+    }
+    
+    .button-link {
+        font-size: 36px;
+        padding: 30px 50px;
+    }
+}

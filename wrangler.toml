@@ -1,0 +1,19 @@
+[env.production]
+name = "augen-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Template routes - replace your-domain.com with your actual domain in wrangler.toml.local
+routes = [
+  { pattern = "your-domain.com/api/*", zone_name = "your-domain.com" }
+]
+
+# Environment variables (set via wrangler secret)
+# DEEPINFRA_API_KEY will be set securely via: wrangler secret put DEEPINFRA_API_KEY
+
+[env.development]
+name = "augen-api-dev"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
