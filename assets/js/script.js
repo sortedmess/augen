@@ -409,12 +409,35 @@ class AugenApp {
     takePicture(fullDescription = false) {
         const fileInput = document.getElementById('file-input');
         fileInput.setAttribute('data-full-description', fullDescription);
-        fileInput.click();
+        
+        // Mobile-specific handling
+        try {
+            // Reset the input to ensure change event fires
+            fileInput.value = '';
+            
+            // For mobile browsers, we need to trigger click in user gesture context
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                // Mobile device
+                setTimeout(() => {
+                    fileInput.click();
+                }, 10);
+            } else {
+                fileInput.click();
+            }
+        } catch (error) {
+            console.error('Error triggering file input:', error);
+            this.updateStatus('Camera access failed. Please try again.', 'error');
+        }
     }
 
     async handleImageUpload(event) {
         const file = event.target.files[0];
-        if (!file) return;
+        if (!file) {
+            console.log('No file selected');
+            return;
+        }
+
+        console.log('File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
 
         const fullDescription = event.target.getAttribute('data-full-description') === 'true';
         const processingMsg = this.getLocalizedString('processing');
@@ -423,8 +446,13 @@ class AugenApp {
         this.speak(processingMsg);
 
         try {
+            console.log('Converting file to base64...');
             const base64Image = await this.fileToBase64(file);
+            console.log('Base64 conversion complete, length:', base64Image.length);
+            
+            console.log('Sending to API...');
             const description = await this.analyzeImage(base64Image, fullDescription);
+            console.log('API response received:', description.substring(0, 100) + '...');
             
             this.updateStatus(`Image analyzed successfully!`, 'success');
             
@@ -435,8 +463,9 @@ class AugenApp {
             }
             
         } catch (error) {
-            console.error('Error:', error);
-            const errorMsg = this.getLocalizedString('error');
+            console.error('Detailed error:', error);
+            console.error('Error stack:', error.stack);
+            const errorMsg = this.getLocalizedString('error') + ': ' + error.message;
             this.updateStatus(errorMsg, 'error');
             this.speak(errorMsg);
         }
