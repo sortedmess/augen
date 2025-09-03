@@ -15,7 +15,7 @@ export default {
     const url = new URL(request.url);
     
     try {
-      // Vision API endpoint - Gemma-3-27b-it
+      // Vision API endpoint - Groq Llama 4 Scout
       if (url.pathname === '/api/analyze' && request.method === 'POST') {
         return await this.handleVisionRequest(request, env);
       }
@@ -80,16 +80,16 @@ export default {
     
     const prompt = language === 'en' 
       ? basePrompt
-      : `${basePrompt}\n\nIMPORTANT: Please provide your response in ${languageName}. Even if the image contains text in other languages, describe it in ${languageName}.`;
+      : `${basePrompt}\n\nCRITICAL: You MUST respond entirely in ${languageName} language. Do not use English. All descriptions, explanations, and text must be in ${languageName} only.`;
 
-    const response = await fetch('https://api.deepinfra.com/v1/openai/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${env.DEEPINFRA_API_KEY}`,
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemma-3-27b-it',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: [
           {
             role: 'user',
@@ -107,7 +107,7 @@ export default {
             ]
           }
         ],
-        max_tokens: fullDescription ? 1500 : 500,
+        max_completion_tokens: fullDescription ? 1500 : 500,
         temperature: 0.3,
         top_p: 0.9
       })
@@ -115,7 +115,7 @@ export default {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Deepinfra Vision API error:', errorText);
+      console.error('Groq Vision API error:', errorText);
       return new Response(JSON.stringify({ 
         error: 'Vision analysis failed',
         details: errorText 

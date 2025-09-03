@@ -10,7 +10,7 @@ routes = [
 ]
 
 # Environment variables (set via wrangler secret)
-# DEEPINFRA_API_KEY will be set securely via: wrangler secret put DEEPINFRA_API_KEY
+# GROQ_API_KEY will be set securely via: wrangler secret put GROQ_API_KEY
 
 [env.development]
 name = "augen-api-dev"

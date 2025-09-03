@@ -30,7 +30,7 @@ augen/
 
 ### Environment Variables
 Set these in your Cloudflare Pages dashboard:
-- `DEEPINFRA_API_KEY`: Your DeepInfra API key
+- `GROQ_API_KEY`: Your Groq API key
 - Any other required environment variables
 
 ## Deployment Steps

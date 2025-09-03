@@ -30,7 +30,7 @@
 - **Secure API** → Keys stored safely in Cloudflare Workers
 - **Open source** → Fully auditable code
 - **No tracking** → Complete user privacy
-- **Shared demo API** → Free for community use (rate limited for fair use)
+- **Fast inference** → Groq API for ultra-low latency responses
 
 ## 🚀 Quick Start
 
@@ -66,7 +66,7 @@ npm run deploy
 ### Backend
 - **Cloudflare Workers** → Serverless, global edge deployment
 - **Shared API service** → No setup required for contributors
-- **Deepinfra APIs** → Cost-effective AI services
+- **Groq APIs** → Ultra-fast AI inference
   - **Vision**: Google Gemma-3-27b-it  
   - **TTS**: Native browser speech synthesis (offline, no API cost)
 
@@ -172,7 +172,7 @@ This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE)
 ## 🙏 Acknowledgments
 
 - **Accessibility community** → For feedback and testing
-- **Deepinfra** → For cost-effective vision AI services (~1€/month!)
+- **Groq** → For ultra-fast vision AI inference with Llama 4 Scout
 - **Cloudflare** → For global serverless infrastructure
 - **Browser vendors** → For excellent native TTS support
 - **Contributors** → Demo API is shared freely for community benefit

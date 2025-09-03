@@ -1,4 +1,4 @@
-# Augen Deployment Guide - Cloudflare Worker + Deepinfra
+# Augen Deployment Guide - Cloudflare Worker + Groq
 
 ## Setup Instructions
 
@@ -14,8 +14,8 @@ npm install wrangler --save-dev
 wrangler login
 ```
 
-### 3. Get Deepinfra API Key
-1. Go to [Deepinfra](https://deepinfra.com/)
+### 3. Get Groq API Key
+1. Go to [Groq Console](https://console.groq.com)
 2. Sign up/login
 3. Get your API key from the dashboard
 4. Copy the API key
@@ -38,12 +38,12 @@ routes = [
 
 ### 5. Set Environment Variables
 ```bash
-# Set your Deepinfra API key securely
-wrangler secret put DEEPINFRA_API_KEY --env production
+# Set your Groq API key securely
+wrangler secret put GROQ_API_KEY --env production
 # Paste your API key when prompted
 
 # For development
-wrangler secret put DEEPINFRA_API_KEY --env development
+wrangler secret put GROQ_API_KEY --env development
 ```
 
 ### 6. Deploy the Worker
@@ -66,14 +66,14 @@ Visit your domain and test:
 ## API Endpoints Created
 
 ### `/api/analyze` (POST)
-- **Purpose**: Image analysis with Gemma-3-27b-it
+- **Purpose**: Image analysis with Llama 4 Scout
 - **Input**: `{ "image": "base64_string", "fullDescription": boolean }`
 - **Output**: `{ "description": "text description" }`
 
-### `/api/tts` (POST)
-- **Purpose**: Text-to-speech with Kokoro-82M
-- **Input**: `{ "text": "text to speak", "voice": "default" }`
-- **Output**: MP3 audio file
+### TTS Integration
+- **Native TTS**: Uses browser's built-in speech synthesis
+- **No API needed**: Works offline with speechSynthesis API
+- **Multilingual**: Supports 12+ languages automatically
 
 ### `/api/health` (GET)
 - **Purpose**: Health check
@@ -81,9 +81,10 @@ Visit your domain and test:
 
 ## Cost Estimation
 
-### Deepinfra Pricing (approximate):
-- **Gemma-3-27b-it**: ~$0.0008 per 1K tokens
-- **Kokoro-82M**: ~$0.0001 per second of audio
+### Groq Pricing:
+- **Ultra-fast inference**: Llama 4 Scout with low latency
+- **Competitive pricing**: Check Groq console for current rates
+- **No TTS costs**: Native browser speech synthesis
 
 ### Cloudflare Workers:
 - **Free tier**: 100,000 requests/day
@@ -103,7 +104,7 @@ wrangler tail --env production
 wrangler secret list --env production
 
 # Update secret
-wrangler secret put DEEPINFRA_API_KEY --env production
+wrangler secret put GROQ_API_KEY --env production
 ```
 
 ### Domain routing issues:

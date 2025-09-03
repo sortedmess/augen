@@ -17,7 +17,7 @@ The shared API at `https://augen-api.ignacioeloyola.workers.dev` is provided fre
 - **Community benefit** is the goal
 
 ### Current Capacity
-- Powered by Deepinfra APIs (~2€/month budget)
+- Powered by Groq APIs for ultra-fast inference
 - Shared among all community users
 - May have service interruptions during high usage
 
@@ -26,8 +26,8 @@ The shared API at `https://augen-api.ignacioeloyola.workers.dev` is provided fre
 For production use or higher limits:
 
 ```bash
-# 1. Get your own Deepinfra API key
-# Visit: https://deepinfra.com
+# 1. Get your own Groq API key
+# Visit: https://console.groq.com
 
 # 2. Clone and deploy
 git clone https://github.com/yourusername/augen.git
@@ -35,7 +35,7 @@ cd augen
 npm install
 
 # 3. Set your API key
-npx wrangler secret put DEEPINFRA_API_KEY
+npx wrangler secret put GROQ_API_KEY
 
 # 4. Deploy your worker
 npm run deploy
@@ -54,7 +54,7 @@ this.apiBaseUrl = 'https://your-worker.workers.dev/api';
 - ❌ **No personal info** - Anonymous usage only
 
 ### What Gets Processed
-- ✅ **Images** - Sent to Deepinfra for analysis, then deleted
+- ✅ **Images** - Sent to Groq for analysis, then deleted
 - ✅ **Text descriptions** - Generated and returned via TTS
 - ✅ **API calls** - Standard Cloudflare logging only
 
@@ -91,7 +91,7 @@ If you need higher limits:
 ### Commercial Usage
 For commercial applications:
 - **Deploy your own API** (full instructions provided)
-- **Deepinfra costs** are very reasonable (~$0.01 per 100 requests)
+- **Groq** offers competitive pricing with ultra-fast inference
 - **Full control** over your data and usage
 - **No dependencies** on shared infrastructure
 
