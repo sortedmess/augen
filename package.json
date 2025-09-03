@@ -1,21 +1,40 @@
 {
-  "name": "augen-vision-assistant",
-  "version": "1.0.0",
-  "description": "AI-powered vision assistant for accessibility",
-  "main": "src/worker/worker.js",
+  "name": "augen",
+  "version": "1.0.0-beta",
+  "description": "AI-powered vision assistant for accessibility with voice interaction, three-mode UX, and multilingual support",
+  "main": "index.html",
   "scripts": {
     "dev": "wrangler dev src/worker/worker.js",
-    "deploy": "wrangler deploy src/worker/worker.js --name augen-api --compatibility-date 2024-01-01",
-    "setup": "cp wrangler.toml wrangler.toml.local"
+    "deploy": "wrangler deploy -e production",
+    "deploy:worker": "wrangler deploy src/worker/worker.js --name augen-api-prod --compatibility-date 2024-01-01",
+    "setup": "cp wrangler.toml.local wrangler.toml",
+    "serve": "python3 -m http.server 8080",
+    "start": "npm run serve"
   },
   "keywords": [
     "accessibility",
+    "AI",
     "vision",
-    "ai",
-    "cloudflare-workers"
+    "voice",
+    "multilingual", 
+    "assistive-technology",
+    "screen-reader",
+    "groq",
+    "cloudflare-workers",
+    "material-design",
+    "TTS",
+    "STT"
   ],
-  "author": "",
+  "author": "Claude Code",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sortedmess/augen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sortedmess/augen/issues"
+  },
+  "homepage": "https://augen.ignacio.tech",
   "devDependencies": {
     "wrangler": "^4.33.1"
   }
