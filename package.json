@@ -2,10 +2,10 @@
   "name": "augen-vision-assistant",
   "version": "1.0.0",
   "description": "AI-powered vision assistant for accessibility",
-  "main": "worker.js",
+  "main": "src/worker/worker.js",
   "scripts": {
-    "dev": "wrangler dev worker.js",
-    "deploy": "wrangler deploy worker.js --name augen-api --compatibility-date 2024-01-01",
+    "dev": "wrangler dev src/worker/worker.js",
+    "deploy": "wrangler deploy src/worker/worker.js --name augen-api --compatibility-date 2024-01-01",
     "setup": "cp wrangler.toml wrangler.toml.local"
   },
   "keywords": [
