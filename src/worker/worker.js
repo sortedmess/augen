@@ -4,7 +4,7 @@ export default {
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
-          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Max-Age': '86400',
@@ -25,7 +25,7 @@ export default {
         return new Response(JSON.stringify({ status: 'ok', timestamp: Date.now() }), {
           headers: { 
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+            'Access-Control-Allow-Origin': '*',
           },
         });
       }
@@ -37,7 +37,7 @@ export default {
         status: 500,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          'Access-Control-Allow-Origin': '*',
         },
       });
     }
@@ -51,7 +51,7 @@ export default {
         status: 400,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          'Access-Control-Allow-Origin': '*',
         },
       });
     }
@@ -123,7 +123,7 @@ export default {
         status: response.status,
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://augen.ignacio.tech',
+          'Access-Control-Allow-Origin': '*',
         },
       });
     }

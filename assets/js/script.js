@@ -6,7 +6,7 @@ class AugenApp {
         this.hapticEnabled = localStorage.getItem('haptic-enabled') !== 'false'; // Default true
         this.userLanguage = this.detectUserLanguage();
         // Use deployed worker URL for now, later switch to custom domain
-        this.apiBaseUrl = 'https://augen-api.ignacioeloyola.workers.dev/api';
+        this.apiBaseUrl = 'https://augen-api-prod.ignacioeloyola.workers.dev/api';
         this.init();
     }
 
