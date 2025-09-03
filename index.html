@@ -46,18 +46,34 @@
             </label>
         </div>
         
-        <button 
-            id="camera-btn" 
-            class="camera-button" 
-            type="button"
-            aria-label="Take picture - single tap for summary, double tap for full description"
-            aria-describedby="instructions"
-            tabindex="0">
-            📷 DESCRIBE
-        </button>
+        <div class="button-row">
+            <button 
+                id="camera-btn" 
+                class="camera-button" 
+                type="button"
+                aria-label="Take picture - single tap for summary, double tap for full description"
+                aria-describedby="instructions"
+                tabindex="0">
+                📷 SEE
+            </button>
+            
+            <button 
+                id="voice-btn" 
+                class="voice-button" 
+                type="button"
+                aria-label="Voice input - describe what you want to know about"
+                aria-describedby="voice-instructions"
+                tabindex="0">
+                🎤 ASK
+            </button>
+        </div>
         
         <div id="instructions" class="sr-only">
             Press this button to take a picture. Single tap for summary, double tap for full description. AI will describe what it sees out loud.
+        </div>
+        
+        <div id="voice-instructions" class="sr-only">
+            Press this button to record your voice. Ask questions about images or request descriptions. AI will analyze and respond out loud.
         </div>
         
         <div 
