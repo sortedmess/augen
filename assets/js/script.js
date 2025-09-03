@@ -1163,6 +1163,8 @@ class AugenApp {
 
     async transcribeWithGroq(audioBlob) {
         try {
+            console.log('Starting transcription with blob size:', audioBlob.size);
+            
             // Convert to appropriate format for Groq
             const formData = new FormData();
             formData.append('file', audioBlob, 'recording.webm');
@@ -1170,27 +1172,34 @@ class AugenApp {
             formData.append('language', this.userLanguage);
             formData.append('temperature', '0.0');
 
+            console.log('Sending transcription request to:', `${this.apiBaseUrl}/transcribe`);
             const response = await fetch(`${this.apiBaseUrl}/transcribe`, {
                 method: 'POST',
                 body: formData
             });
 
+            console.log('Transcription response status:', response.status);
+            
             if (!response.ok) {
-                throw new Error('Transcription failed');
+                const errorText = await response.text();
+                console.error('Transcription API error:', errorText);
+                throw new Error(`Transcription failed: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
+            console.log('Transcription response data:', data);
             const transcript = data.text || data.transcript;
             
             if (!transcript || transcript.trim().length === 0) {
                 throw new Error('No speech detected');
             }
 
+            console.log('Transcription successful:', transcript);
             await this.handleVoiceQuery(transcript);
             
         } catch (error) {
             console.error('Groq transcription error:', error);
-            this.updateStatus('Voice transcription failed. Please try again.', 'error');
+            this.updateStatus(`Voice transcription failed: ${error.message}`, 'error');
         }
     }
 
