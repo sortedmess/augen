@@ -316,6 +316,42 @@ h1 {
     animation: pulse-icon 1.5s ease-in-out infinite;
 }
 
+/* Stop TTS button */
+.stop-tts-button {
+    width: 180px;
+    height: 45px;
+    background: rgba(244, 67, 54, 0.9);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 12px auto;
+    touch-action: manipulation;
+    box-shadow: 0 3px 8px rgba(244, 67, 54, 0.3);
+}
+
+.stop-tts-button:hover {
+    background: rgba(244, 67, 54, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.stop-tts-button:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.stop-tts-button .material-symbols-rounded {
+    font-size: 16px;
+}
+
 /* Reset button */
 .reset-button {
     width: 100%;

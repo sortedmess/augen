@@ -1,16 +1,13 @@
-[env.production]
 name = "augen-api"
 main = "src/worker/worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Template routes - replace your-domain.com with your actual domain in wrangler.toml.local
-routes = [
-  { pattern = "your-domain.com/api/*", zone_name = "your-domain.com" }
-]
-
-# Environment variables (set via wrangler secret)
-# GROQ_API_KEY will be set securely via: wrangler secret put GROQ_API_KEY
+[env.production]
+name = "augen-api-prod"
+main = "src/worker/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [env.development]
 name = "augen-api-dev"

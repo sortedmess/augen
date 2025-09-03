@@ -40,7 +40,12 @@ class AugenApp {
         // Map to supported languages
         const supportedLanguages = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'ar', 'hi'];
         
-        return supportedLanguages.includes(langCode) ? langCode : 'en';
+        const detectedLang = supportedLanguages.includes(langCode) ? langCode : 'en';
+        
+        // Auto-save the detected language as user preference (not as 'auto')
+        localStorage.setItem('user-language', detectedLang);
+        
+        return detectedLang;
     }
 
     getLanguageName(langCode) {
@@ -245,6 +250,76 @@ class AugenApp {
                 'zh': '拍照 - 单击获取摘要，双击获取完整描述',
                 'ar': 'التقاط صورة - نقرة واحدة للملخص، نقرة مزدوجة للوصف الكامل',
                 'hi': 'फोटो लें - सारांश के लिए एक टैप, पूर्ण विवरण के लिए डबल टैप'
+            },
+            'imageCaptured': {
+                'en': 'Image captured! Choose an action below.',
+                'es': 'Imagen capturada. Elige una acción abajo.',
+                'fr': 'Image capturée! Choisissez une action ci-dessous.',
+                'de': 'Bild aufgenommen! Wählen Sie unten eine Aktion.',
+                'it': 'Immagine catturata! Scegli un\'azione sotto.',
+                'pt': 'Imagem capturada! Escolha uma ação abaixo.',
+                'ru': 'Изображение захвачено! Выберите действие ниже.',
+                'ja': '画像をキャプチャしました！下からアクションを選択してください。',
+                'ko': '이미지가 캡처되었습니다! 아래에서 작업을 선택하세요.',
+                'zh': '图像已捕获！请在下方选择操作。',
+                'ar': 'تم التقاط الصورة! اختر إجراء أدناه.',
+                'hi': 'छवि कैप्चर की गई! नीचे एक क्रिया चुनें।'
+            },
+            'speechStopped': {
+                'en': 'Speech stopped',
+                'es': 'Audio detenido',
+                'fr': 'Discours arrêté',
+                'de': 'Sprache gestoppt',
+                'it': 'Discorso fermato',
+                'pt': 'Fala interrompida',
+                'ru': 'Речь остановлена',
+                'ja': 'スピーチが停止されました',
+                'ko': '음성이 중지되었습니다',
+                'zh': '语音已停止',
+                'ar': 'توقف الكلام',
+                'hi': 'भाषण रुक गया'
+            },
+            'readyNewChat': {
+                'en': 'Ready for new chat',
+                'es': 'Listo para nueva conversación',
+                'fr': 'Prêt pour un nouveau chat',
+                'de': 'Bereit für neuen Chat',
+                'it': 'Pronto per nuova chat',
+                'pt': 'Pronto para nova conversa',
+                'ru': 'Готов к новому чату',
+                'ja': '新しいチャットの準備ができました',
+                'ko': '새 채팅 준비 완료',
+                'zh': '准备新聊天',
+                'ar': 'جاهز للدردشة الجديدة',
+                'hi': 'नई चैट के लिए तैयार'
+            },
+            'imageDescribeSuccess': {
+                'en': 'Image described successfully!',
+                'es': '¡Imagen descrita con éxito!',
+                'fr': 'Image décrite avec succès!',
+                'de': 'Bild erfolgreich beschrieben!',
+                'it': 'Immagine descritta con successo!',
+                'pt': 'Imagem descrita com sucesso!',
+                'ru': 'Изображение успешно описано!',
+                'ja': '画像の説明が成功しました！',
+                'ko': '이미지 설명이 성공했습니다!',
+                'zh': '图像描述成功！',
+                'ar': 'تم وصف الصورة بنجاح!',
+                'hi': 'छवि सफलतापूर्वक वर्णित!'
+            },
+            'voiceQuerySuccess': {
+                'en': 'Voice query processed successfully!',
+                'es': '¡Consulta de voz procesada con éxito!',
+                'fr': 'Requête vocale traitée avec succès!',
+                'de': 'Sprachanfrage erfolgreich verarbeitet!',
+                'it': 'Query vocale elaborata con successo!',
+                'pt': 'Consulta de voz processada com sucesso!',
+                'ru': 'Голосовой запрос успешно обработан!',
+                'ja': '音声クエリが正常に処理されました！',
+                'ko': '음성 쿼리가 성공적으로 처리되었습니다!',
+                'zh': '语音查询处理成功！',
+                'ar': 'تمت معالجة الاستعلام الصوتي بنجاح!',
+                'hi': 'आवाज क्वेरी सफलतापूर्वक संसाधित!'
             }
         };
         
@@ -324,6 +399,7 @@ class AugenApp {
         const describeBtn = document.getElementById('describe-btn');
         const askAboutBtn = document.getElementById('ask-about-btn');
         const resetBtn = document.getElementById('reset-btn');
+        const stopTtsBtn = document.getElementById('stop-tts-btn');
         const fileInput = document.getElementById('file-input');
         const settingsBtn = document.getElementById('settings-btn');
         const settingsPanel = document.getElementById('settings-panel');
@@ -380,6 +456,17 @@ class AugenApp {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     this.resetToChat();
+                }
+            });
+        }
+        
+        // Stop TTS button
+        if (stopTtsBtn) {
+            stopTtsBtn.addEventListener('click', (e) => this.stopTTS());
+            stopTtsBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.stopTTS();
                 }
             });
         }
@@ -486,9 +573,9 @@ class AugenApp {
         const morseToggle = document.getElementById('morse-toggle');
         const hapticToggle = document.getElementById('haptic-toggle');
         
-        // Set language selector
+        // Set language selector to detected language (not 'auto')
         const savedLanguage = localStorage.getItem('user-language');
-        languageSelect.value = savedLanguage || 'auto';
+        languageSelect.value = savedLanguage || this.userLanguage;
         
         morseToggle.checked = this.morseEnabled;
         hapticToggle.checked = this.hapticEnabled;
@@ -552,7 +639,7 @@ class AugenApp {
         
         try {
             const description = await this.analyzeImage(this.currentImage, true); // Always full description
-            this.updateStatus('Image described successfully!', 'success');
+            this.updateStatus(this.getLocalizedString('imageDescribeSuccess'), 'success');
             
             if (this.morseEnabled) {
                 await this.outputMorse(description);
@@ -593,7 +680,7 @@ class AugenApp {
             this.imageTimestamp = Date.now();
             this.updateMode('image');
             
-            this.updateStatus('Image captured! Choose an action below.', 'success');
+            this.updateStatus(this.getLocalizedString('imageCaptured'), 'success');
             
         } catch (error) {
             console.error('Detailed error:', error);
@@ -876,7 +963,39 @@ class AugenApp {
             
             utterance.lang = speechLangMap[this.userLanguage] || 'en-US';
             
+            // Show stop TTS button when speech starts
+            utterance.onstart = () => {
+                this.showStopTTSButton();
+            };
+            
+            // Hide stop TTS button when speech ends
+            utterance.onend = () => {
+                this.hideStopTTSButton();
+            };
+            
             speechSynthesis.speak(utterance);
+        }
+    }
+
+    stopTTS() {
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+            this.hideStopTTSButton();
+            this.updateStatus(this.getLocalizedString('speechStopped'), 'success');
+        }
+    }
+
+    showStopTTSButton() {
+        const stopTtsBtn = document.getElementById('stop-tts-btn');
+        if (stopTtsBtn) {
+            stopTtsBtn.style.display = 'flex';
+        }
+    }
+
+    hideStopTTSButton() {
+        const stopTtsBtn = document.getElementById('stop-tts-btn');
+        if (stopTtsBtn) {
+            stopTtsBtn.style.display = 'none';
         }
     }
 
@@ -932,7 +1051,7 @@ class AugenApp {
         this.currentImage = null;
         this.imageTimestamp = null;
         this.updateMode('chat');
-        this.updateStatus('Ready for new chat', 'success');
+        this.updateStatus(this.getLocalizedString('readyNewChat'), 'success');
         
         // Clear any ongoing speech
         if (speechSynthesis.speaking) {
@@ -1016,7 +1135,21 @@ class AugenApp {
             
         } catch (error) {
             console.error('Error starting recording:', error);
-            this.updateStatus('Microphone access denied. Please allow microphone access.', 'error');
+            const micErrorMsg = {
+                'en': 'Microphone access denied. Please allow microphone access.',
+                'es': 'Acceso al micrófono denegado. Por favor, permite el acceso al micrófono.',
+                'fr': 'Accès au microphone refusé. Veuillez autoriser l\'accès au microphone.',
+                'de': 'Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff.',
+                'it': 'Accesso al microfono negato. Concedi l\'accesso al microfono.',
+                'pt': 'Acesso ao microfone negado. Permita o acesso ao microfone.',
+                'ru': 'Доступ к микрофону запрещен. Разрешите доступ к микрофону.',
+                'ja': 'マイクアクセスが拒否されました。マイクアクセスを許可してください。',
+                'ko': '마이크 액세스가 거부되었습니다. 마이크 액세스를 허용해 주세요.',
+                'zh': '麦克风访问被拒绝。请允许麦克风访问。',
+                'ar': 'تم رفض الوصول إلى الميكروفون. يرجى السماح بالوصول إلى الميكروفون.',
+                'hi': 'माइक्रोफोन एक्सेस अस्वीकृत। कृपया माइक्रोफोन एक्सेस की अनुमति दें।'
+            };
+            this.updateStatus(micErrorMsg[this.userLanguage] || micErrorMsg['en'], 'error');
         }
     }
 
@@ -1068,7 +1201,21 @@ class AugenApp {
             
         } catch (error) {
             console.error('Error starting recording:', error);
-            this.updateStatus('Microphone access denied. Please allow microphone access.', 'error');
+            const micErrorMsg = {
+                'en': 'Microphone access denied. Please allow microphone access.',
+                'es': 'Acceso al micrófono denegado. Por favor, permite el acceso al micrófono.',
+                'fr': 'Accès au microphone refusé. Veuillez autoriser l\'accès au microphone.',
+                'de': 'Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff.',
+                'it': 'Accesso al microfono negato. Concedi l\'accesso al microfono.',
+                'pt': 'Acesso ao microfone negado. Permita o acesso ao microfone.',
+                'ru': 'Доступ к микрофону запрещен. Разрешите доступ к микрофону.',
+                'ja': 'マイクアクセスが拒否されました。マイクアクセスを許可してください。',
+                'ko': '마이크 액세스가 거부되었습니다. 마이크 액세스를 허용해 주세요.',
+                'zh': '麦克风访问被拒绝。请允许麦克风访问。',
+                'ar': 'تم رفض الوصول إلى الميكروفون. يرجى السماح بالوصول إلى الميكروفون.',
+                'hi': 'माइक्रोफोन एक्सेस अस्वीकृत। कृपया माइक्रोफोन एक्सेस की अनुमति दें।'
+            };
+            this.updateStatus(micErrorMsg[this.userLanguage] || micErrorMsg['en'], 'error');
         }
     }
 
@@ -1244,7 +1391,7 @@ class AugenApp {
                 response = await this.processVoiceQuery(enhancedPrompt);
             }
             
-            this.updateStatus('Voice query processed successfully!', 'success');
+            this.updateStatus(this.getLocalizedString('voiceQuerySuccess'), 'success');
             
             if (this.morseEnabled) {
                 await this.outputMorse(response);
@@ -1264,8 +1411,8 @@ class AugenApp {
         // Clean up the transcript and add context for voice-only queries
         const cleanTranscript = transcript.trim();
         
-        // For voice-only mode, provide general assistant capabilities
-        return `The user asked: "${cleanTranscript}". You are Augen, an AI vision assistant. Since no image is provided, respond to their general question as helpfully as possible. If they're asking about visual content, politely explain that you need an image to analyze.`;
+        // For voice-only mode, provide general assistant capabilities without focusing on images
+        return `The user asked: "${cleanTranscript}". You are Augen, an AI assistant. Answer their question helpfully and conversationally. You can discuss any topic - technology, advice, explanations, creative tasks, etc. Only mention your vision capabilities if the user specifically asks about analyzing images or visual content.`;
     }
 
     enhanceVoiceQueryWithImage(transcript) {
