@@ -214,14 +214,142 @@ h1 {
     direction: ltr;
 }
 
-/* Button row container */
-.button-row {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+/* Mode indicator */
+.mode-indicator {
+    text-align: center;
+    margin: 30px 0 40px 0;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 12px 24px;
+    margin-bottom: 12px;
+}
+
+.mode-icon {
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.mode-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.mode-description {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+/* Button area container */
+.button-area {
     width: 100%;
     max-width: 600px;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
+}
+
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Large primary buttons */
+.large-button {
+    height: 200px;
+    font-size: 24px;
+    border-radius: 20px;
+}
+
+.large-button .button-text {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.large-button .button-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* Secondary smaller buttons */
+.secondary-button {
+    height: 80px;
+    font-size: 18px;
+    border-radius: 16px;
+    opacity: 0.8;
+}
+
+.secondary-button:hover {
+    opacity: 1;
+}
+
+.secondary-button .icon {
+    font-size: 32px;
+}
+
+.secondary-button .button-text {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.secondary-button.recording {
+    background: linear-gradient(145deg, #f44336, #d32f2f);
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 8px 24px rgba(244, 67, 54, 0.5), 
+                0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 1;
+}
+
+.secondary-button.recording .icon {
+    animation: pulse-icon 1.5s ease-in-out infinite;
+}
+
+/* Reset button */
+.reset-button {
+    width: 100%;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 20px;
+    touch-action: manipulation;
+}
+
+.reset-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.reset-button:focus {
+    outline: 2px solid #ff6b35;
+    outline-offset: 2px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Material Design Icons */
@@ -241,79 +369,54 @@ h1 {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Main camera button - Material Design with high contrast */
-.camera-button {
+/* Base button styles */
+.camera-button, .voice-button {
     width: 100%;
     height: 180px;
     font-size: 20px;
     font-weight: 600;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Motor accessibility improvements */
+    min-height: 60px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    position: relative;
+}
+
+/* Camera button - Blue theme */
+.camera-button {
     background: linear-gradient(145deg, #2196f3, #1976d2);
     color: #ffffff;
-    border: none;
-    border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4), 
                 0 4px 8px rgba(0, 0, 0, 0.2);
-    
-    /* Motor accessibility improvements */
-    min-height: 60px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    position: relative;
 }
 
-.camera-button .icon {
-    font-size: 48px;
-    font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 48;
-}
-
-.camera-button .button-text {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-/* Voice button - Orange for contrast */
+/* Voice button - Orange theme */
 .voice-button {
-    width: 100%;
-    height: 180px;
-    font-size: 20px;
-    font-weight: 600;
     background: linear-gradient(145deg, #ff6b35, #f7931e);
     color: #ffffff;
-    border: none;
-    border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4), 
                 0 4px 8px rgba(0, 0, 0, 0.2);
-    
-    /* Motor accessibility improvements */
-    min-height: 60px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    position: relative;
 }
 
-.voice-button .icon {
+/* Button icons */
+.camera-button .icon, .voice-button .icon {
     font-size: 48px;
     font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 48;
 }
 
-.voice-button .button-text {
+/* Default button text */
+.camera-button .button-text, .voice-button .button-text {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 1px;

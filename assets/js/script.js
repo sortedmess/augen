@@ -18,6 +18,9 @@ class AugenApp {
         this.currentImage = null;
         this.imageTimestamp = null;
         
+        // App modes: 'chat' (default), 'image' (after taking photo), 'query' (image + can ask)
+        this.currentMode = 'chat';
+        
         this.init();
     }
 
@@ -318,6 +321,9 @@ class AugenApp {
     setupEventListeners() {
         const cameraBtn = document.getElementById('camera-btn');
         const voiceBtn = document.getElementById('voice-btn');
+        const describeBtn = document.getElementById('describe-btn');
+        const askAboutBtn = document.getElementById('ask-about-btn');
+        const resetBtn = document.getElementById('reset-btn');
         const fileInput = document.getElementById('file-input');
         const settingsBtn = document.getElementById('settings-btn');
         const settingsPanel = document.getElementById('settings-panel');
@@ -325,26 +331,58 @@ class AugenApp {
         const morseToggle = document.getElementById('morse-toggle');
         const hapticToggle = document.getElementById('haptic-toggle');
 
-        // Enhanced button interaction with double-tap detection
-        cameraBtn.addEventListener('click', (e) => this.handleButtonClick(e));
-        cameraBtn.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        // Chat mode buttons
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', (e) => this.handleVoiceClick(e));
+            voiceBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.handleVoiceClick(e);
+                }
+            });
+        }
         
-        // Keyboard accessibility
-        cameraBtn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.takePicture(false); // Default to summary for keyboard
-            }
-        });
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', (e) => this.takePicture());
+            cameraBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.takePicture();
+                }
+            });
+        }
         
-        // Voice button interactions
-        voiceBtn.addEventListener('click', (e) => this.handleVoiceClick(e));
-        voiceBtn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.handleVoiceClick(e);
-            }
-        });
+        // Image mode buttons
+        if (describeBtn) {
+            describeBtn.addEventListener('click', (e) => this.describeCurrentImage());
+            describeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.describeCurrentImage();
+                }
+            });
+        }
+        
+        if (askAboutBtn) {
+            askAboutBtn.addEventListener('click', (e) => this.handleImageVoiceClick(e));
+            askAboutBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.handleImageVoiceClick(e);
+                }
+            });
+        }
+        
+        // Reset button
+        if (resetBtn) {
+            resetBtn.addEventListener('click', (e) => this.resetToChat());
+            resetBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.resetToChat();
+                }
+            });
+        }
         
         // Settings panel
         settingsBtn.addEventListener('click', () => {
@@ -481,9 +519,8 @@ class AugenApp {
         }
     }
 
-    takePicture(fullDescription = false) {
+    takePicture() {
         const fileInput = document.getElementById('file-input');
-        fileInput.setAttribute('data-full-description', fullDescription);
         
         // Mobile-specific handling
         try {
@@ -502,6 +539,32 @@ class AugenApp {
         } catch (error) {
             console.error('Error triggering file input:', error);
             this.updateStatus('Camera access failed. Please try again.', 'error');
+        }
+    }
+
+    async describeCurrentImage() {
+        if (!this.currentImage) {
+            this.updateStatus('No image to describe', 'error');
+            return;
+        }
+
+        this.updateStatus(this.getLocalizedString('processing'), 'loading');
+        
+        try {
+            const description = await this.analyzeImage(this.currentImage, true); // Always full description
+            this.updateStatus('Image described successfully!', 'success');
+            
+            if (this.morseEnabled) {
+                await this.outputMorse(description);
+            } else {
+                await this.speakDescription(description);
+            }
+            
+        } catch (error) {
+            console.error('Description error:', error);
+            const errorMsg = this.getLocalizedString('error');
+            this.updateStatus(errorMsg, 'error');
+            this.speak(errorMsg);
         }
     }
 
@@ -525,22 +588,12 @@ class AugenApp {
             const base64Image = await this.fileToBase64(file);
             console.log('Base64 conversion complete, length:', base64Image.length);
             
-            // Store the current image for potential voice queries
+            // Store the current image and switch to image mode
             this.currentImage = base64Image;
             this.imageTimestamp = Date.now();
+            this.updateMode('image');
             
-            console.log('Sending to API...');
-            const description = await this.analyzeImage(base64Image, fullDescription);
-            console.log('API response received:', description.substring(0, 100) + '...');
-            
-            this.updateStatus(`Image analyzed successfully!`, 'success');
-            this.updateButtonStates();
-            
-            if (this.morseEnabled) {
-                await this.outputMorse(description);
-            } else {
-                await this.speakDescription(description);
-            }
+            this.updateStatus('Image captured! Choose an action below.', 'success');
             
         } catch (error) {
             console.error('Detailed error:', error);
@@ -834,25 +887,66 @@ class AugenApp {
         statusDiv.style.display = 'flex';
     }
 
-    updateButtonStates() {
-        const voiceBtn = document.getElementById('voice-btn');
-        const cameraBtn = document.getElementById('camera-btn');
+    updateMode(newMode) {
+        this.currentMode = newMode;
         
-        if (this.currentImage && (Date.now() - this.imageTimestamp < 300000)) { // 5 minutes
-            // Image available - change voice button to blue to match image context
-            voiceBtn.style.background = 'linear-gradient(145deg, #2196f3, #1976d2)';
-            voiceBtn.setAttribute('aria-label', 'Ask question about the captured image');
-            
-            // Add subtle indicator to camera button
-            cameraBtn.style.boxShadow = '0 8px 24px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgba(76, 175, 80, 0.6)';
+        const chatModeButtons = document.getElementById('chat-mode-buttons');
+        const imageModeButtons = document.getElementById('image-mode-buttons');
+        const resetBtn = document.getElementById('reset-btn');
+        const modeIndicator = document.getElementById('mode-indicator');
+        const modeIcon = modeIndicator?.querySelector('.mode-icon');
+        const modeText = modeIndicator?.querySelector('.mode-text');
+        const modeDescription = modeIndicator?.querySelector('.mode-description');
+        
+        // Hide all button sets first
+        chatModeButtons.style.display = 'none';
+        imageModeButtons.style.display = 'none';
+        resetBtn.style.display = 'none';
+        
+        switch (newMode) {
+            case 'chat':
+                chatModeButtons.style.display = 'flex';
+                if (modeIcon) modeIcon.textContent = 'chat';
+                if (modeText) modeText.textContent = 'Chat Mode';
+                if (modeDescription) modeDescription.textContent = 'Ask me anything by voice';
+                break;
+                
+            case 'image':
+                imageModeButtons.style.display = 'flex';
+                resetBtn.style.display = 'block';
+                if (modeIcon) modeIcon.textContent = 'photo_camera';
+                if (modeText) modeText.textContent = 'Image Mode';
+                if (modeDescription) modeDescription.textContent = 'Describe or ask about this image';
+                break;
+        }
+        
+        // Add animation
+        if (modeIndicator) {
+            modeIndicator.style.animation = 'none';
+            modeIndicator.offsetHeight; // Trigger reflow
+            modeIndicator.style.animation = 'fadeIn 0.3s ease-in-out';
+        }
+    }
+
+    resetToChat() {
+        this.currentImage = null;
+        this.imageTimestamp = null;
+        this.updateMode('chat');
+        this.updateStatus('Ready for new chat', 'success');
+        
+        // Clear any ongoing speech
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
+    }
+
+    updateButtonStates() {
+        // This method is now replaced by updateMode()
+        // Keep for backwards compatibility but delegate to updateMode
+        if (this.currentImage && (Date.now() - this.imageTimestamp < 300000)) {
+            this.updateMode('image');
         } else {
-            // No image - reset to default states
-            voiceBtn.style.background = 'linear-gradient(145deg, #ff6b35, #f7931e)';
-            voiceBtn.setAttribute('aria-label', 'Voice input - ask general questions');
-            
-            cameraBtn.style.boxShadow = '0 8px 24px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2)';
-            this.currentImage = null;
-            this.imageTimestamp = null;
+            this.updateMode('chat');
         }
     }
 
@@ -862,6 +956,15 @@ class AugenApp {
             await this.stopRecording();
         } else {
             await this.startRecording();
+        }
+    }
+
+    async handleImageVoiceClick(event) {
+        // Special handler for voice queries about images
+        if (this.isRecording) {
+            await this.stopImageRecording();
+        } else {
+            await this.startImageRecording();
         }
     }
 
@@ -895,12 +998,66 @@ class AugenApp {
             this.isRecording = true;
             
             const voiceBtn = document.getElementById('voice-btn');
-            voiceBtn.classList.add('recording');
+            if (voiceBtn) {
+                voiceBtn.classList.add('recording');
+                
+                const icon = voiceBtn.querySelector('.icon');
+                const buttonText = voiceBtn.querySelector('.button-text');
+                if (icon) icon.textContent = 'stop';
+                if (buttonText) buttonText.textContent = 'STOP';
+            }
             
-            const icon = voiceBtn.querySelector('.icon');
-            const buttonText = voiceBtn.querySelector('.button-text');
-            if (icon) icon.textContent = 'stop';
-            if (buttonText) buttonText.textContent = 'STOP';
+            this.updateStatus(this.getLocalizedString('listening'), 'loading');
+            
+            // Provide haptic feedback for recording start
+            if (this.hapticEnabled && navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+            
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            this.updateStatus('Microphone access denied. Please allow microphone access.', 'error');
+        }
+    }
+
+    async startImageRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: { 
+                    sampleRate: 16000,
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                } 
+            });
+            
+            this.audioChunks = [];
+            this.mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'audio/webm;codecs=opus'
+            });
+            
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.audioChunks.push(event.data);
+                }
+            };
+            
+            this.mediaRecorder.onstop = () => {
+                this.processRecording();
+            };
+            
+            this.mediaRecorder.start(100); // Collect chunks every 100ms
+            this.isRecording = true;
+            
+            const askAboutBtn = document.getElementById('ask-about-btn');
+            if (askAboutBtn) {
+                askAboutBtn.classList.add('recording');
+                
+                const icon = askAboutBtn.querySelector('.icon');
+                const buttonText = askAboutBtn.querySelector('.button-text');
+                if (icon) icon.textContent = 'stop';
+                if (buttonText) buttonText.textContent = 'STOP';
+            }
             
             this.updateStatus(this.getLocalizedString('listening'), 'loading');
             
@@ -924,12 +1081,35 @@ class AugenApp {
         this.isRecording = false;
         
         const voiceBtn = document.getElementById('voice-btn');
-        voiceBtn.classList.remove('recording');
+        if (voiceBtn) {
+            voiceBtn.classList.remove('recording');
+            
+            const icon = voiceBtn.querySelector('.icon');
+            const buttonText = voiceBtn.querySelector('.button-text');
+            if (icon) icon.textContent = 'mic';
+            if (buttonText) buttonText.textContent = this.getLocalizedString('askButton').replace(/🎤\s*/, '');
+        }
         
-        const icon = voiceBtn.querySelector('.icon');
-        const buttonText = voiceBtn.querySelector('.button-text');
-        if (icon) icon.textContent = 'mic';
-        if (buttonText) buttonText.textContent = this.getLocalizedString('askButton').replace(/🎤\s*/, '');
+        this.updateStatus(this.getLocalizedString('processingAudio'), 'loading');
+    }
+
+    async stopImageRecording() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.stop();
+            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+        
+        this.isRecording = false;
+        
+        const askAboutBtn = document.getElementById('ask-about-btn');
+        if (askAboutBtn) {
+            askAboutBtn.classList.remove('recording');
+            
+            const icon = askAboutBtn.querySelector('.icon');
+            const buttonText = askAboutBtn.querySelector('.button-text');
+            if (icon) icon.textContent = 'help';
+            if (buttonText) buttonText.textContent = 'ASK ABOUT IT';
+        }
         
         this.updateStatus(this.getLocalizedString('processingAudio'), 'loading');
     }

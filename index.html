@@ -13,6 +13,15 @@
     <main class="container" role="main">
         <h1 id="main-heading">Augen</h1>
         
+        <!-- Mode indicator -->
+        <div id="mode-indicator" class="mode-indicator">
+            <div class="mode-badge">
+                <span class="mode-icon material-symbols-rounded">chat</span>
+                <span class="mode-text">Chat Mode</span>
+            </div>
+            <p class="mode-description">Ask me anything by voice</p>
+        </div>
+        
         <div id="settings-panel" class="settings-panel" style="display: none;">
             <h2>Settings</h2>
             <label class="setting-item">
@@ -43,36 +52,70 @@
             </label>
         </div>
         
-        <div class="button-row">
-            <button 
-                id="camera-btn" 
-                class="camera-button" 
-                type="button"
-                aria-label="Take picture - single tap for summary, double tap for full description"
-                aria-describedby="instructions"
-                tabindex="0">
-                <span class="material-symbols-rounded icon">camera_alt</span>
-                <span class="button-text">SEE</span>
-            </button>
+        <div class="button-area">
+            <!-- Chat Mode: Only voice button -->
+            <div id="chat-mode-buttons" class="mode-buttons">
+                <button 
+                    id="voice-btn" 
+                    class="voice-button large-button" 
+                    type="button"
+                    aria-label="Voice input - ask me anything"
+                    tabindex="0">
+                    <span class="material-symbols-rounded icon">mic</span>
+                    <span class="button-text">ASK</span>
+                    <span class="button-subtitle">Voice chat with AI</span>
+                </button>
+                
+                <button 
+                    id="camera-btn" 
+                    class="camera-button secondary-button" 
+                    type="button"
+                    aria-label="Take a picture to describe"
+                    tabindex="0">
+                    <span class="material-symbols-rounded icon">camera_alt</span>
+                    <span class="button-text">TAKE PHOTO</span>
+                </button>
+            </div>
             
+            <!-- Image Mode: Only describe button -->
+            <div id="image-mode-buttons" class="mode-buttons" style="display: none;">
+                <button 
+                    id="describe-btn" 
+                    class="camera-button large-button" 
+                    type="button"
+                    aria-label="Describe the captured image"
+                    tabindex="0">
+                    <span class="material-symbols-rounded icon">visibility</span>
+                    <span class="button-text">DESCRIBE</span>
+                    <span class="button-subtitle">What's in this image?</span>
+                </button>
+                
+                <button 
+                    id="ask-about-btn" 
+                    class="voice-button secondary-button" 
+                    type="button"
+                    aria-label="Ask question about image"
+                    tabindex="0">
+                    <span class="material-symbols-rounded icon">help</span>
+                    <span class="button-text">ASK ABOUT IT</span>
+                </button>
+            </div>
+            
+            <!-- Reset button for going back to chat mode -->
             <button 
-                id="voice-btn" 
-                class="voice-button" 
+                id="reset-btn" 
+                class="reset-button" 
                 type="button"
-                aria-label="Voice input - describe what you want to know about"
-                aria-describedby="voice-instructions"
-                tabindex="0">
-                <span class="material-symbols-rounded icon">mic</span>
-                <span class="button-text">ASK</span>
+                aria-label="Start new conversation"
+                tabindex="0"
+                style="display: none;">
+                <span class="material-symbols-rounded">refresh</span>
+                <span>NEW CHAT</span>
             </button>
         </div>
         
         <div id="instructions" class="sr-only">
-            Press this button to take a picture. Single tap for summary, double tap for full description. AI will describe what it sees out loud.
-        </div>
-        
-        <div id="voice-instructions" class="sr-only">
-            Press this button to record your voice. Ask questions about images or request descriptions. AI will analyze and respond out loud.
+            Use voice to chat with AI, or take photos to get descriptions and ask questions about them.
         </div>
         
         <div 
