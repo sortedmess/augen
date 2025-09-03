@@ -14,6 +14,10 @@ class AugenApp {
         this.audioChunks = [];
         this.hasNativeSTT = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
         
+        // Image state for combined photo + voice queries
+        this.currentImage = null;
+        this.imageTimestamp = null;
+        
         this.init();
     }
 
@@ -273,6 +277,7 @@ class AugenApp {
         this.setupEventListeners();
         this.loadSettings();
         this.updateUILanguage();
+        this.updateButtonStates(); // Initialize button states
         this.checkApiHealth();
     }
 
@@ -486,11 +491,16 @@ class AugenApp {
             const base64Image = await this.fileToBase64(file);
             console.log('Base64 conversion complete, length:', base64Image.length);
             
+            // Store the current image for potential voice queries
+            this.currentImage = base64Image;
+            this.imageTimestamp = Date.now();
+            
             console.log('Sending to API...');
             const description = await this.analyzeImage(base64Image, fullDescription);
             console.log('API response received:', description.substring(0, 100) + '...');
             
             this.updateStatus(`Image analyzed successfully!`, 'success');
+            this.updateButtonStates();
             
             if (this.morseEnabled) {
                 await this.outputMorse(description);
@@ -728,6 +738,28 @@ class AugenApp {
         statusDiv.style.display = 'flex';
     }
 
+    updateButtonStates() {
+        const voiceBtn = document.getElementById('voice-btn');
+        const cameraBtn = document.getElementById('camera-btn');
+        
+        if (this.currentImage && (Date.now() - this.imageTimestamp < 300000)) { // 5 minutes
+            // Image available - show that voice can ask about the image
+            voiceBtn.style.background = 'linear-gradient(145deg, #667eea, #764ba2)';
+            voiceBtn.setAttribute('aria-label', 'Ask question about the captured image');
+            
+            // Add subtle indicator to camera button
+            cameraBtn.style.boxShadow = '0 20px 40px rgba(0, 212, 170, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1), inset 0 0 0 2px rgba(0, 212, 170, 0.3)';
+        } else {
+            // No image - reset to default states
+            voiceBtn.style.background = 'linear-gradient(145deg, #00d4aa, #01b492)';
+            voiceBtn.setAttribute('aria-label', 'Voice input - ask general questions');
+            
+            cameraBtn.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1)';
+            this.currentImage = null;
+            this.imageTimestamp = null;
+        }
+    }
+
     // Voice functionality methods
     async handleVoiceClick(event) {
         if (this.isRecording) {
@@ -904,9 +936,20 @@ class AugenApp {
         this.speak(`Processing your request: ${sanitizedTranscript}`);
         
         try {
-            // Enhance the query with context and send to voice query API
-            const enhancedPrompt = this.enhanceVoiceQuery(sanitizedTranscript);
-            const response = await this.processVoiceQuery(enhancedPrompt);
+            let response;
+            
+            // Check if we have a current image (within 5 minutes)
+            if (this.currentImage && (Date.now() - this.imageTimestamp < 300000)) {
+                // Mode 3: Image + Voice Query
+                console.log('Processing voice query with image context');
+                const enhancedPrompt = this.enhanceVoiceQueryWithImage(sanitizedTranscript);
+                response = await this.analyzeImageWithVoiceQuery(this.currentImage, enhancedPrompt);
+            } else {
+                // Mode 1: Voice Only
+                console.log('Processing voice query without image');
+                const enhancedPrompt = this.enhanceVoiceQuery(sanitizedTranscript);
+                response = await this.processVoiceQuery(enhancedPrompt);
+            }
             
             this.updateStatus('Voice query processed successfully!', 'success');
             
@@ -925,10 +968,18 @@ class AugenApp {
     }
 
     enhanceVoiceQuery(transcript) {
-        // Clean up the transcript and add context
+        // Clean up the transcript and add context for voice-only queries
         const cleanTranscript = transcript.trim();
         
-        // Detect intent and enhance prompt
+        // For voice-only mode, provide general assistant capabilities
+        return `The user asked: "${cleanTranscript}". You are Augen, an AI vision assistant. Since no image is provided, respond to their general question as helpfully as possible. If they're asking about visual content, politely explain that you need an image to analyze.`;
+    }
+
+    enhanceVoiceQueryWithImage(transcript) {
+        // Clean up the transcript and add context for image + voice queries
+        const cleanTranscript = transcript.trim();
+        
+        // Detect intent and enhance prompt for image analysis
         const lowerTranscript = cleanTranscript.toLowerCase();
         
         if (lowerTranscript.includes('describe') || lowerTranscript.includes('what') || lowerTranscript.includes('see')) {
@@ -937,9 +988,36 @@ class AugenApp {
             return `The user asked: "${cleanTranscript}". Please read any text visible in the image clearly and completely.`;
         } else if (lowerTranscript.includes('help') || lowerTranscript.includes('assist')) {
             return `The user needs help: "${cleanTranscript}". Please describe what you see and provide relevant assistance based on the image content.`;
+        } else if (lowerTranscript.includes('count') || lowerTranscript.includes('how many')) {
+            return `The user asked: "${cleanTranscript}". Please count and identify the specific items they're asking about in the image.`;
+        } else if (lowerTranscript.includes('color') || lowerTranscript.includes('colour')) {
+            return `The user asked: "${cleanTranscript}". Please describe the colors and visual appearance of what they're asking about in the image.`;
         } else {
-            return `The user asked: "${cleanTranscript}". Please analyze the image and respond to their question as helpfully as possible.`;
+            return `The user asked: "${cleanTranscript}". Please analyze the image and respond to their specific question as helpfully as possible.`;
         }
+    }
+
+    async analyzeImageWithVoiceQuery(base64Image, enhancedPrompt) {
+        const response = await fetch(`${this.apiBaseUrl}/analyze`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: base64Image,
+                fullDescription: true, // Always use full description for voice queries
+                language: this.userLanguage,
+                customPrompt: enhancedPrompt // Add custom prompt for voice query
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Failed to analyze image with voice query' }));
+            throw new Error(error.error || 'Failed to analyze image with voice query');
+        }
+
+        const data = await response.json();
+        return data.description;
     }
 
     async processVoiceQuery(enhancedPrompt) {

@@ -99,7 +99,7 @@ export default {
 
   async handleVisionRequest(request, env) {
     const allowedOrigin = this.getCorsOrigin(request);
-    const { image, fullDescription = false, language = 'en' } = await request.json();
+    const { image, fullDescription = false, language = 'en', customPrompt = null } = await request.json();
     
     if (!image) {
       return new Response(JSON.stringify({ error: 'Image data required' }), {
@@ -129,13 +129,24 @@ export default {
     
     const languageName = languageNames[language] || 'English';
     
-    const basePrompt = fullDescription 
-      ? "Describe this image in complete detail. If it contains text (like a menu, sign, or document), read all the text clearly and completely. If it's a scene, describe everything you see in detail. Be thorough and comprehensive as this will be read aloud to a visually impaired person."
-      : "Provide a concise summary of this image. If it contains text (like a menu, sign, or document), give me the key information and main points only. If it's a scene, describe the most important elements. Keep it brief but informative for a visually impaired person.";
+    let prompt;
     
-    const prompt = language === 'en' 
-      ? basePrompt
-      : `${basePrompt}\n\nCRITICAL: You MUST respond entirely in ${languageName} language. Do not use English. All descriptions, explanations, and text must be in ${languageName} only.`;
+    if (customPrompt) {
+      // Use custom prompt for voice queries (sanitized)
+      const sanitizedCustomPrompt = this.sanitizeInput(customPrompt);
+      prompt = language === 'en' 
+        ? sanitizedCustomPrompt
+        : `${sanitizedCustomPrompt}\n\nCRITICAL: You MUST respond entirely in ${languageName} language. Do not use English. All descriptions, explanations, and text must be in ${languageName} only.`;
+    } else {
+      // Use standard prompts for regular image analysis
+      const basePrompt = fullDescription 
+        ? "Describe this image in complete detail. If it contains text (like a menu, sign, or document), read all the text clearly and completely. If it's a scene, describe everything you see in detail. Be thorough and comprehensive as this will be read aloud to a visually impaired person."
+        : "Provide a concise summary of this image. If it contains text (like a menu, sign, or document), give me the key information and main points only. If it's a scene, describe the most important elements. Keep it brief but informative for a visually impaired person.";
+      
+      prompt = language === 'en' 
+        ? basePrompt
+        : `${basePrompt}\n\nCRITICAL: You MUST respond entirely in ${languageName} language. Do not use English. All descriptions, explanations, and text must be in ${languageName} only.`;
+    }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
