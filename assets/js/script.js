@@ -473,11 +473,75 @@ class AugenApp {
 
     async fileToBase64(file) {
         return new Promise((resolve, reject) => {
+            const img = new Image();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            img.onload = () => {
+                // Calculate optimal dimensions
+                let { width, height } = this.calculateOptimalDimensions(img.width, img.height);
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress image
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to base64 with compression
+                // Use JPEG for photos (smaller) but maintain quality for text
+                const quality = file.size > 2000000 ? 0.7 : 0.8; // Lower quality for larger files
+                const dataURL = canvas.toDataURL('image/jpeg', quality);
+                
+                console.log(`Image compressed: ${img.width}x${img.height} -> ${width}x${height}, quality: ${quality}`);
+                console.log(`File size reduced: ${file.size} -> ~${Math.round(dataURL.length * 0.75)} bytes`);
+                
+                resolve(dataURL.split(',')[1]);
+            };
+            
+            img.onerror = reject;
+            
+            // Load the image
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
+    }
+    
+    calculateOptimalDimensions(originalWidth, originalHeight) {
+        const maxWidth = 1920;  // Good balance for text readability
+        const maxHeight = 1920;
+        const maxPixels = 2073600; // ~2MP max to keep under API limits
+        
+        let width = originalWidth;
+        let height = originalHeight;
+        
+        // Calculate current pixels
+        const currentPixels = width * height;
+        
+        // If image is too large by pixel count, scale down
+        if (currentPixels > maxPixels) {
+            const scale = Math.sqrt(maxPixels / currentPixels);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+        }
+        
+        // Ensure dimensions don't exceed max width/height
+        if (width > maxWidth) {
+            const scale = maxWidth / width;
+            width = maxWidth;
+            height = Math.round(height * scale);
+        }
+        
+        if (height > maxHeight) {
+            const scale = maxHeight / height;
+            height = maxHeight;
+            width = Math.round(width * scale);
+        }
+        
+        return { width, height };
     }
 
     async analyzeImage(base64Image, fullDescription) {
