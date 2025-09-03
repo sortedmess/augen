@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Augen - AI Vision Assistant</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -11,10 +12,6 @@
     
     <main class="container" role="main">
         <h1 id="main-heading">Augen</h1>
-        
-        <div class="settings-toggle">
-            <button id="settings-btn" class="settings-button" aria-label="Toggle settings">⚙️</button>
-        </div>
         
         <div id="settings-panel" class="settings-panel" style="display: none;">
             <h2>Settings</h2>
@@ -54,7 +51,8 @@
                 aria-label="Take picture - single tap for summary, double tap for full description"
                 aria-describedby="instructions"
                 tabindex="0">
-                📷 SEE
+                <span class="material-symbols-rounded icon">camera_alt</span>
+                <span class="button-text">SEE</span>
             </button>
             
             <button 
@@ -64,7 +62,8 @@
                 aria-label="Voice input - describe what you want to know about"
                 aria-describedby="voice-instructions"
                 tabindex="0">
-                🎤 ASK
+                <span class="material-symbols-rounded icon">mic</span>
+                <span class="button-text">ASK</span>
             </button>
         </div>
         
@@ -95,6 +94,12 @@
     </main>
     
     <footer role="contentinfo">
+        <div class="settings-toggle">
+            <button id="settings-btn" class="settings-button" aria-label="Toggle settings">
+                <span class="material-symbols-rounded">settings</span>
+            </button>
+        </div>
+        
         <nav aria-label="Footer navigation">
             <p><a href="about.html" tabindex="0">About</a> • <a href="help.html" tabindex="0">Help</a> • <a href="contact.html" tabindex="0">Contact</a></p>
         </nav>

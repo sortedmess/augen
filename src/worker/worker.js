@@ -140,8 +140,8 @@ export default {
     } else {
       // Use standard prompts for regular image analysis
       const basePrompt = fullDescription 
-        ? "Describe this image in complete detail. If it contains text (like a menu, sign, or document), read all the text clearly and completely. If it's a scene, describe everything you see in detail. Be thorough and comprehensive as this will be read aloud to a visually impaired person."
-        : "Provide a concise summary of this image. If it contains text (like a menu, sign, or document), give me the key information and main points only. If it's a scene, describe the most important elements. Keep it brief but informative for a visually impaired person.";
+        ? "Describe this image in complete detail. If it contains text (like a menu, sign, or document), read all the text clearly and completely. If it's a scene, describe everything you see in detail. Be thorough and comprehensive as this will be read aloud to a visually impaired person.\n\nIMPORTANT FOR NUMBERS: When you encounter phone numbers (like 654123123), format them as individual digits (6 5 4 1 2 3 1 2 3) for proper text-to-speech reading. For prices and currency, say the amount normally (like 'twenty-five dollars' instead of '2 5 dollar sign'). For large ID numbers or codes, break them into groups."
+        : "Provide a concise summary of this image. If it contains text (like a menu, sign, or document), give me the key information and main points only. If it's a scene, describe the most important elements. Keep it brief but informative for a visually impaired person.\n\nIMPORTANT FOR NUMBERS: When you encounter phone numbers (like 654123123), format them as individual digits (6 5 4 1 2 3 1 2 3) for proper text-to-speech reading. For prices and currency, say the amount normally (like 'twenty-five dollars'). For large ID numbers, break them into groups.";
       
       prompt = language === 'en' 
         ? basePrompt

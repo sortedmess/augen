@@ -187,6 +187,34 @@ class AugenApp {
                 'ar': 'معالجة...',
                 'hi': 'प्रसंस्करण...'
             },
+            'listening': {
+                'en': 'Listening... Speak now',
+                'es': 'Escuchando... Habla ahora',
+                'fr': 'Écoute... Parlez maintenant',
+                'de': 'Höre zu... Sprechen Sie jetzt',
+                'it': 'Ascolto... Parla ora',
+                'pt': 'Ouvindo... Fale agora',
+                'ru': 'Слушаю... Говорите сейчас',
+                'ja': '聞いています... 今話してください',
+                'ko': '듣는 중... 지금 말하세요',
+                'zh': '正在聆听... 现在说话',
+                'ar': 'أستمع... تحدث الآن',
+                'hi': 'सुन रहा हूं... अब बोलें'
+            },
+            'processingAudio': {
+                'en': 'Processing audio...',
+                'es': 'Procesando audio...',
+                'fr': 'Traitement audio...',
+                'de': 'Audio wird verarbeitet...',
+                'it': 'Elaborazione audio...',
+                'pt': 'Processando áudio...',
+                'ru': 'Обработка аудио...',
+                'ja': '音声処理中...',
+                'ko': '오디오 처리중...',
+                'zh': '处理音频中...',
+                'ar': 'معالجة الصوت...',
+                'hi': 'ऑडियो प्रसंस्करण...'
+            },
             'error': {
                 'en': 'Error. Try again.',
                 'es': 'Error. Reintente.',
@@ -230,13 +258,19 @@ class AugenApp {
         // Update main buttons
         const cameraBtn = document.getElementById('camera-btn');
         if (cameraBtn) {
-            cameraBtn.textContent = this.getLocalizedString('seeButton');
+            const buttonText = cameraBtn.querySelector('.button-text');
+            if (buttonText) {
+                buttonText.textContent = this.getLocalizedString('seeButton').replace(/📷\s*/, '');
+            }
             cameraBtn.setAttribute('aria-label', this.getLocalizedString('buttonAriaLabel'));
         }
         
         const voiceBtn = document.getElementById('voice-btn');
         if (voiceBtn) {
-            voiceBtn.textContent = this.getLocalizedString('askButton');
+            const buttonText = voiceBtn.querySelector('.button-text');
+            if (buttonText) {
+                buttonText.textContent = this.getLocalizedString('askButton').replace(/🎤\s*/, '');
+            }
         }
         
         // Update settings panel
@@ -702,9 +736,71 @@ class AugenApp {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    formatNumbersForSpeech(text) {
+        // Intelligent number formatting for TTS
+        let formattedText = text;
+        
+        // Phone numbers (various patterns)
+        const phonePatterns = [
+            /\b(\d{3})[ -]?(\d{3})[ -]?(\d{4})\b/g, // 123-456-7890 or 123 456 7890
+            /\b(\d{3})(\d{3})(\d{3})\b/g, // 654123123 (9 digits)
+            /\b(\d{2})[ -]?(\d{4})[ -]?(\d{4})\b/g, // 12-3456-7890
+            /\b(\d{4})[ -]?(\d{3})[ -]?(\d{3})\b/g, // 1234-567-890
+            /\b(\d{3})[ -]?(\d{2})[ -]?(\d{2})[ -]?(\d{2})\b/g // 123-45-67-89
+        ];
+        
+        phonePatterns.forEach(pattern => {
+            formattedText = formattedText.replace(pattern, (match) => {
+                // Convert to individual digits
+                return match.replace(/\D/g, '').split('').join(' ');
+            });
+        });
+        
+        // Currency amounts
+        const currencyPatterns = [
+            /\$(\d+(?:,\d{3})*(?:\.\d{2})?)/g, // $1,234.56
+            /(\d+(?:,\d{3})*(?:\.\d{2})?)€/g, // 1,234.56€
+            /(\d+(?:,\d{3})*(?:\.\d{2})?)\s*(euros?|dollars?|pounds?)/gi
+        ];
+        
+        currencyPatterns.forEach(pattern => {
+            formattedText = formattedText.replace(pattern, (match, amount) => {
+                if (match.includes('$')) return `${amount} dollars`;
+                if (match.includes('€')) return `${amount} euros`;
+                return match; // Keep original for other currency words
+            });
+        });
+        
+        // Credit card numbers (16 digits grouped)
+        formattedText = formattedText.replace(/\b(\d{4})[ -]?(\d{4})[ -]?(\d{4})[ -]?(\d{4})\b/g, 
+            (match, g1, g2, g3, g4) => {
+                return `${g1.split('').join(' ')} ${g2.split('').join(' ')} ${g3.split('').join(' ')} ${g4.split('').join(' ')}`;
+            });
+        
+        // Large numbers (avoid reading as huge numbers)
+        // Convert numbers with 6+ digits to grouped format
+        formattedText = formattedText.replace(/\b(\d{6,})\b/g, (match) => {
+            // Don't format if it's already been processed as phone/credit card
+            if (match.includes(' ')) return match;
+            
+            // Group by 3 digits from right to left
+            const reversed = match.split('').reverse();
+            const groups = [];
+            for (let i = 0; i < reversed.length; i += 3) {
+                groups.push(reversed.slice(i, i + 3).reverse().join(''));
+            }
+            return groups.reverse().join(' thousand, ') + (groups.length > 1 ? '' : '');
+        });
+        
+        return formattedText;
+    }
+
     speak(text) {
         if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
+            // Apply intelligent number formatting
+            const formattedText = this.formatNumbersForSpeech(text);
+            
+            const utterance = new SpeechSynthesisUtterance(formattedText);
             utterance.rate = 0.8;
             utterance.volume = 1;
             
@@ -743,18 +839,18 @@ class AugenApp {
         const cameraBtn = document.getElementById('camera-btn');
         
         if (this.currentImage && (Date.now() - this.imageTimestamp < 300000)) { // 5 minutes
-            // Image available - show that voice can ask about the image
-            voiceBtn.style.background = 'linear-gradient(145deg, #667eea, #764ba2)';
+            // Image available - change voice button to blue to match image context
+            voiceBtn.style.background = 'linear-gradient(145deg, #2196f3, #1976d2)';
             voiceBtn.setAttribute('aria-label', 'Ask question about the captured image');
             
             // Add subtle indicator to camera button
-            cameraBtn.style.boxShadow = '0 20px 40px rgba(0, 212, 170, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1), inset 0 0 0 2px rgba(0, 212, 170, 0.3)';
+            cameraBtn.style.boxShadow = '0 8px 24px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgba(76, 175, 80, 0.6)';
         } else {
             // No image - reset to default states
-            voiceBtn.style.background = 'linear-gradient(145deg, #00d4aa, #01b492)';
+            voiceBtn.style.background = 'linear-gradient(145deg, #ff6b35, #f7931e)';
             voiceBtn.setAttribute('aria-label', 'Voice input - ask general questions');
             
-            cameraBtn.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.3), 0 8px 16px rgba(0, 0, 0, 0.1)';
+            cameraBtn.style.boxShadow = '0 8px 24px rgba(33, 150, 243, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2)';
             this.currentImage = null;
             this.imageTimestamp = null;
         }
@@ -800,9 +896,13 @@ class AugenApp {
             
             const voiceBtn = document.getElementById('voice-btn');
             voiceBtn.classList.add('recording');
-            voiceBtn.textContent = '⏹️ STOP';
             
-            this.updateStatus('Listening... Speak now', 'loading');
+            const icon = voiceBtn.querySelector('.icon');
+            const buttonText = voiceBtn.querySelector('.button-text');
+            if (icon) icon.textContent = 'stop';
+            if (buttonText) buttonText.textContent = 'STOP';
+            
+            this.updateStatus(this.getLocalizedString('listening'), 'loading');
             
             // Provide haptic feedback for recording start
             if (this.hapticEnabled && navigator.vibrate) {
@@ -825,9 +925,13 @@ class AugenApp {
         
         const voiceBtn = document.getElementById('voice-btn');
         voiceBtn.classList.remove('recording');
-        voiceBtn.textContent = this.getLocalizedString('askButton');
         
-        this.updateStatus('Processing audio...', 'loading');
+        const icon = voiceBtn.querySelector('.icon');
+        const buttonText = voiceBtn.querySelector('.button-text');
+        if (icon) icon.textContent = 'mic';
+        if (buttonText) buttonText.textContent = this.getLocalizedString('askButton').replace(/🎤\s*/, '');
+        
+        this.updateStatus(this.getLocalizedString('processingAudio'), 'loading');
     }
 
     async processRecording() {
