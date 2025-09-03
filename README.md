@@ -14,9 +14,9 @@
 - **Instant feedback** → Audio and haptic confirmation
 
 ### 🔊 **Multiple Output Modes**
-- **High-quality TTS** → Natural voice synthesis via Kokoro-82M
+- **Native TTS** → Browser speech synthesis - works offline, no API needed
 - **Morse code** → Audio beeps and vibration patterns for deaf-blind users
-- **Browser fallback** → Works even when services are unavailable
+- **Universal compatibility** → Works on all modern devices and browsers
 
 ### ♿ **Maximum Accessibility**
 - **Ultra-high contrast** → Yellow/black theme for maximum visibility
@@ -68,18 +68,20 @@ npm run deploy
 - **Shared API service** → No setup required for contributors
 - **Deepinfra APIs** → Cost-effective AI services
   - **Vision**: Google Gemma-3-27b-it  
-  - **TTS**: Hexgrad Kokoro-82M
+  - **TTS**: Native browser speech synthesis (offline, no API cost)
 
 ### APIs (Ready to Use)
 - `POST https://augen-api.ignacioeloyola.workers.dev/api/analyze`
-- `POST https://augen-api.ignacioeloyola.workers.dev/api/tts`  
 - `GET https://augen-api.ignacioeloyola.workers.dev/api/health`
+
+*Note: TTS now uses native browser speech synthesis - no API endpoint needed*
 
 ## 💰 Cost-Effective & Accessible
 
-- **~90% cheaper** than OpenAI equivalents
+- **Even cheaper** → No TTS API costs, uses free native browser speech
+- **~90% cheaper vision API** than OpenAI equivalents
 - **Free demo API** → Shared service for testing and demos
-- **Low cost deployment** → ~2€/month covers community usage
+- **Ultra-low cost deployment** → ~1€/month for vision API only
 - **No setup barriers** → Just clone and deploy frontend
 - **Optional self-hosting** → Deploy your own worker if needed
 
@@ -110,21 +112,32 @@ npm run deploy
 ### Project Structure
 ```
 augen/
-├── index.html          # Main app interface
-├── script.js          # Client-side logic
-├── style.css          # High-contrast styling
-├── worker.js          # Cloudflare Worker (API proxy)
-├── wrangler.toml      # Cloudflare configuration
-├── about.html         # About page
-├── help.html          # Help documentation
-├── contact.html       # Contact information
-└── deploy-guide.md    # Deployment instructions
+├── src/
+│   ├── frontend/
+│   │   ├── pages/
+│   │   │   ├── index.html      # Main app interface
+│   │   │   ├── about.html      # About page
+│   │   │   ├── help.html       # Help documentation
+│   │   │   └── contact.html    # Contact information
+│   │   ├── js/
+│   │   │   └── script.js       # Client-side logic
+│   │   └── css/
+│   │       └── style.css       # High-contrast styling
+│   └── worker/
+│       └── worker.js           # Cloudflare Worker (vision API proxy)
+├── wrangler.toml               # Cloudflare configuration
+└── deploy-guide.md             # Deployment instructions
 ```
 
 ### Local Development
 ```bash
-# Serve frontend locally
+# Serve frontend locally (from src/frontend/pages)
+cd src/frontend/pages
 python3 -m http.server 8000
+
+# Or serve from project root
+python3 -m http.server 8000
+# Then visit: http://localhost:8000/src/frontend/pages/
 
 # Test the shared API
 curl https://augen-api.ignacioeloyola.workers.dev/api/health
@@ -159,8 +172,9 @@ This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE)
 ## 🙏 Acknowledgments
 
 - **Accessibility community** → For feedback and testing
-- **Deepinfra** → For cost-effective AI services (~2€/month!)
+- **Deepinfra** → For cost-effective vision AI services (~1€/month!)
 - **Cloudflare** → For global serverless infrastructure
+- **Browser vendors** → For excellent native TTS support
 - **Contributors** → Demo API is shared freely for community benefit
 - **Open source community** → For tools and inspiration
 
