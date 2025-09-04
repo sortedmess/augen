@@ -11,6 +11,15 @@
     <link rel="stylesheet" href="assets/css/style.css?v=2.0">
 </head>
 <body>
+    <script>
+        // Apply saved theme immediately to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'standard';
+        const savedFontSize = localStorage.getItem('font-size') || 'standard';
+        const savedLanguage = localStorage.getItem('user-language') || 'auto';
+        let className = `theme-${savedTheme} font-size-${savedFontSize}`;
+        if (savedLanguage === 'ar') className += ' rtl';
+        document.body.className = className;
+    </script>
     <a href="#main-button" class="skip-link">Skip to main button</a>
     
     <!-- Settings button in header -->
