@@ -1,0 +1,16 @@
+name = "augen-api"
+main = "src/worker/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "augen-api-prod"
+main = "src/worker/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.development]
+name = "augen-api-dev"
+main = "src/worker/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
